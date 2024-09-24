@@ -72,13 +72,13 @@ class enrol_customgr_enrol_form extends moodleform {
         $mform = $this->_form;
         $instance = $this->_customdata;
         $this->instance = $instance;
-        $plugin = enrol_get_plugin('self');
+        $plugin = enrol_get_plugin('customgr');
 
         $heading = $plugin->get_instance_name($instance);
         $mform->addElement('header', 'selfheader', $heading);
 
         if ($instance->password) {
-            // Change the id of self enrolment key input as there can be multiple self enrolment methods.
+            // Change the id of customgr enrolment key input as there can be multiple customgr enrolment methods.
             $mform->addElement('password', 'enrolpassword', get_string('password', 'enrol_customgr'),
                     array('id' => 'enrolpassword_'.$instance->id));
             $context = context_course::instance($this->instance->courseid);
@@ -129,21 +129,12 @@ class enrol_customgr_enrol_form extends moodleform {
 
         if ($instance->password) {
             if ($data['enrolpassword'] !== $instance->password) {
-                if ($instance->customint1) {
-                    // Check group enrolment key.
-                    if (!enrol_customgr_check_group_enrolment_key($instance->courseid, $data['enrolpassword'])) {
-                        // We can not hint because there are probably multiple passwords.
-                        $errors['enrolpassword'] = get_string('passwordinvalid', 'enrol_customgr');
-                    }
-
+                $plugin = enrol_get_plugin('customgr');
+                if ($plugin->get_config('showhint')) {
+                    $hint = core_text::substr($instance->password, 0, 1);
+                    $errors['enrolpassword'] = get_string('passwordinvalidhint', 'enrol_customgr', $hint);
                 } else {
-                    $plugin = enrol_get_plugin('self');
-                    if ($plugin->get_config('showhint')) {
-                        $hint = core_text::substr($instance->password, 0, 1);
-                        $errors['enrolpassword'] = get_string('passwordinvalidhint', 'enrol_customgr', $hint);
-                    } else {
-                        $errors['enrolpassword'] = get_string('passwordinvalid', 'enrol_customgr');
-                    }
+                    $errors['enrolpassword'] = get_string('passwordinvalid', 'enrol_customgr');
                 }
             }
         }

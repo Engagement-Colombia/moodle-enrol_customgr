@@ -27,7 +27,7 @@ require('../../config.php');
 $enrolid = required_param('enrolid', PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_BOOL);
 
-$instance = $DB->get_record('enrol', array('id'=>$enrolid, 'enrol'=>'self'), '*', MUST_EXIST);
+$instance = $DB->get_record('enrol', array('id'=>$enrolid, 'enrol'=>'customgr'), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$instance->courseid), '*', MUST_EXIST);
 $context = context_course::instance($course->id, MUST_EXIST);
 
@@ -37,7 +37,7 @@ if (!is_enrolled($context)) {
 }
 require_login($course);
 
-$plugin = enrol_get_plugin('self');
+$plugin = enrol_get_plugin('customgr');
 
 // Security defined inside following function.
 if (!$plugin->get_unenrolself_link($instance)) {

@@ -125,7 +125,7 @@ class enrol_customgr_editselectedusers_operation extends enrol_bulk_enrolment_op
             foreach ($users as $user) {
                 foreach ($user->enrolments as $enrolment) {
                     $enrolment->courseid  = $enrolment->enrolmentinstance->courseid;
-                    $enrolment->enrol     = 'self';
+                    $enrolment->enrol     = 'customgr';
                     // Trigger event.
                     $event = \core\event\user_enrolment_updated::create(
                         array(
@@ -133,7 +133,7 @@ class enrol_customgr_editselectedusers_operation extends enrol_bulk_enrolment_op
                             'courseid' => $enrolment->courseid,
                             'context' => context_course::instance($enrolment->courseid),
                             'relateduserid' => $user->id,
-                            'other' => array('enrol' => 'self')
+                            'other' => array('enrol' => 'customgr')
                         )
                     );
                     $event->trigger();

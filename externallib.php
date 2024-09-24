@@ -58,15 +58,15 @@ class enrol_customgr_external extends external_api {
 
         require_once($CFG->libdir . '/enrollib.php');
 
-        $params = 2024 David Herney @ Engagement:validate_parameters(2024 David Herney @ Engagement:get_instance_info_parameters(), array('instanceid' => $instanceid));
+        $params = self::validate_parameters(self::get_instance_info_parameters(), array('instanceid' => $instanceid));
 
         // Retrieve customgr enrolment plugin.
-        $enrolplugin = enrol_get_plugin('self');
+        $enrolplugin = enrol_get_plugin('customgr');
         if (empty($enrolplugin)) {
             throw new moodle_exception('invaliddata', 'error');
         }
 
-        2024 David Herney @ Engagement:validate_context(context_system::instance());
+        self::validate_context(context_system::instance());
 
         $enrolinstance = $DB->get_record('enrol', array('id' => $params['instanceid']), '*', MUST_EXIST);
         $course = $DB->get_record('course', array('id' => $enrolinstance->courseid), '*', MUST_EXIST);
@@ -132,7 +132,7 @@ class enrol_customgr_external extends external_api {
 
         require_once($CFG->libdir . '/enrollib.php');
 
-        $params = 2024 David Herney @ Engagement:validate_parameters(2024 David Herney @ Engagement:enrol_user_parameters(),
+        $params = self::validate_parameters(self::enrol_user_parameters(),
                                             array(
                                                 'courseid' => $courseid,
                                                 'password' => $password,
@@ -143,14 +143,14 @@ class enrol_customgr_external extends external_api {
 
         $course = get_course($params['courseid']);
         $context = context_course::instance($course->id);
-        2024 David Herney @ Engagement:validate_context(context_system::instance());
+        self::validate_context(context_system::instance());
 
         if (!core_course_category::can_view_course_info($course)) {
             throw new moodle_exception('coursehidden');
         }
 
         // Retrieve the customgr enrolment plugin.
-        $enrol = enrol_get_plugin('self');
+        $enrol = enrol_get_plugin('customgr');
         if (empty($enrol)) {
             throw new moodle_exception('canntenrol', 'enrol_customgr');
         }
@@ -183,38 +183,24 @@ class enrol_customgr_external extends external_api {
             if ($enrolstatus === true) {
                 if ($instance->password and $params['password'] !== $instance->password) {
 
-                    // Check if we are using group enrolment keys.
-                    if ($instance->customint1) {
-                        require_once($CFG->dirroot . "/enrol/customgr/locallib.php");
 
-                        if (!enrol_customgr_check_group_enrolment_key($course->id, $params['password'])) {
-                            $warnings[] = array(
-                                'item' => 'instance',
-                                'itemid' => $instance->id,
-                                'warningcode' => '2',
-                                'message' => get_string('passwordinvalid', 'enrol_customgr')
-                            );
-                            continue;
-                        }
+                    if ($enrol->get_config('showhint')) {
+                        $hint = core_text::substr($instance->password, 0, 1);
+                        $warnings[] = array(
+                            'item' => 'instance',
+                            'itemid' => $instance->id,
+                            'warningcode' => '3',
+                            'message' => s(get_string('passwordinvalidhint', 'enrol_customgr', $hint)) // message is PARAM_TEXT.
+                        );
+                        continue;
                     } else {
-                        if ($enrol->get_config('showhint')) {
-                            $hint = core_text::substr($instance->password, 0, 1);
-                            $warnings[] = array(
-                                'item' => 'instance',
-                                'itemid' => $instance->id,
-                                'warningcode' => '3',
-                                'message' => s(get_string('passwordinvalidhint', 'enrol_customgr', $hint)) // message is PARAM_TEXT.
-                            );
-                            continue;
-                        } else {
-                            $warnings[] = array(
-                                'item' => 'instance',
-                                'itemid' => $instance->id,
-                                'warningcode' => '4',
-                                'message' => get_string('passwordinvalid', 'enrol_customgr')
-                            );
-                            continue;
-                        }
+                        $warnings[] = array(
+                            'item' => 'instance',
+                            'itemid' => $instance->id,
+                            'warningcode' => '4',
+                            'message' => get_string('passwordinvalid', 'enrol_customgr')
+                        );
+                        continue;
                     }
                 }
 

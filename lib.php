@@ -455,7 +455,7 @@ class enrol_customgr_plugin extends enrol_plugin {
     public function sync(progress_trace $trace, $courseid = null) {
         global $DB;
 
-        if (!enrol_is_enabled('self')) {
+        if (!enrol_is_enabled('customgr')) {
             $trace->finished();
             return 2;
         }
@@ -479,7 +479,7 @@ class enrol_customgr_plugin extends enrol_plugin {
         // First deal with users that did not log in for a really long time - they do not have user_lastaccess records.
         $sql = "SELECT e.*, ue.userid
                   FROM {user_enrolments} ue
-                  JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'self' AND e.customint2 > 0)
+                  JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'customgr' AND e.customint2 > 0)
                   JOIN {user} u ON u.id = ue.userid
                  WHERE :now - u.lastaccess > e.customint2
                        $coursesql";
@@ -497,7 +497,7 @@ class enrol_customgr_plugin extends enrol_plugin {
         // Now unenrol from course user did not visit for a long time.
         $sql = "SELECT e.*, ue.userid
                   FROM {user_enrolments} ue
-                  JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'self' AND e.customint2 > 0)
+                  JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'customgr' AND e.customint2 > 0)
                   JOIN {user_lastaccess} ul ON (ul.userid = ue.userid AND ul.courseid = e.courseid)
                  WHERE :now - ul.timeaccess > e.customint2
                        $coursesql";
